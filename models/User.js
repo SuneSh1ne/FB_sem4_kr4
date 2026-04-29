@@ -1,47 +1,53 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
+const userSchema = new mongoose.Schema({
   first_name: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    },
+    type: String,
+    required: [true, 'Имя обязательно для заполнения'],
+    trim: true,
+    minlength: [2, 'Имя должно содержать минимум 2 символа'],
+    maxlength: [50, 'Имя не должно превышать 50 символов']
   },
   last_name: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    validate: {
-      notEmpty: true,
-    },
+    type: String,
+    required: [true, 'Фамилия обязательна для заполнения'],
+    trim: true,
+    minlength: [2, 'Фамилия должна содержать минимум 2 символа'],
+    maxlength: [50, 'Фамилия не должна превышать 50 символов']
   },
   age: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 0,
-      max: 150,
-    },
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
+    type: Number,
+    required: [true, 'Возраст обязателен для заполнения'],
+    min: [0, 'Возраст не может быть отрицательным'],
+    max: [150, 'Некорректный возраст']
+  }
 }, {
-  tableName: 'users',
-  timestamps: true,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
+  timestamps: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+  }
 });
+
+// Индексы для оптимизации поиска
+userSchema.index({ first_name: 1, last_name: 1 });
+userSchema.index({ age: 1 });
+
+// Виртуальное поле full_name
+userSchema.virtual('full_name').get(function() {
+  return `${this.first_name} ${this.last_name}`;
+});
+
+// Настройка JSON-вывода
+userSchema.set('toJSON', {
+  virtuals: true,
+  transform: (doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+});
+
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

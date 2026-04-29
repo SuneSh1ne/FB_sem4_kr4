@@ -1,7 +1,7 @@
 {
   "name": "fb_sem4_kr4",
   "version": "1.0.0",
-  "description": "API for user management with PostgreSQL",
+  "description": "API for user management with MongoDB",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,6 +10,7 @@
   "dependencies": {
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "mongoose": "^9.6.0",
     "pg": "^8.20.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8"
