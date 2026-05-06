@@ -1,74 +1,60 @@
 ### ============================================
-### Тестирование балансировки через Nginx
+### Тестирование балансировки в Docker
 ### ============================================
 
-@nginx_url = http://localhost
+@base_url = http://localhost
 
-### 1. Тестирование Round Robin (основной порт 80)
-# Выполните несколько раз и следите за заголовком X-Backend-Server
-GET {{nginx_url}}/api/health
+### 1. Проверка основного эндпоинта (порт 80)
+# Выполните несколько раз для проверки балансировки
+GET {{base_url}}/
 Accept: application/json
 
-### 2. Получение списка пользователей
-GET {{nginx_url}}/api/users
+### 2. Health check бэкендов через Nginx
+GET {{base_url}}/api/health
 Accept: application/json
 
-### 3. Получение списка товаров
-GET {{nginx_url}}/api/products
+### 3. Список пользователей
+GET {{base_url}}/api/users
 Accept: application/json
 
-### 4. Информация о сервере
-GET {{nginx_url}}/api/info
+### 4. Список товаров
+GET {{base_url}}/api/products
 Accept: application/json
 
-### 5. Health check Nginx
-GET {{nginx_url}}/nginx-health
+### 5. Информация о сервере
+GET {{base_url}}/api/info
+Accept: application/json
+
+### 6. Нагрузочный тест
+GET {{base_url}}/api/load-test?n=5000000
+Accept: application/json
+
+### 7. Health check Nginx
+GET {{base_url}}/nginx-health
 
 ### ============================================
-### Тестирование разных алгоритмов Nginx
+### Тестирование разных алгоритмов
 ### ============================================
 
-### 6. Round Robin (порт 8001)
-GET http://localhost:8001/api/health
+### 8. Round Robin (порт 8001)
+GET http://localhost:8001/
+Accept: application/json
 
-### 7. Least Connections (порт 8002)
-GET http://localhost:8002/api/health
+### 9. Least Connections (порт 8002)
+GET http://localhost:8002/
+Accept: application/json
 
-### 8. IP Hash (порт 8003)
+### 10. IP Hash (порт 8003)
 # С одного IP всегда будет попадать на один сервер
-GET http://localhost:8003/api/health
+GET http://localhost:8003/
+Accept: application/json
 
 ### ============================================
-### Тестирование через HAProxy
+### Массовое тестирование (выполните в терминале)
 ### ============================================
 
-### 9. Round Robin через HAProxy (порт 8080)
-GET http://localhost:8080/api/health
+# Проверка распределения (выполнить несколько раз):
+# curl -s http://localhost/ | jq .server
 
-### 10. Least Connections через HAProxy (порт 8081)
-GET http://localhost:8081/api/health
-
-### 11. Source IP Hash через HAProxy (порт 8082)
-GET http://localhost:8082/api/health
-
-### 12. Статистика HAProxy
-GET http://localhost:8404/
-# Логин: admin, пароль: admin123
-
-### ============================================
-### Тестирование отказоустойчивости
-### ============================================
-
-### 13. Нагрузочный тест
-GET {{nginx_url}}/api/load-test?n=5000000
-
-### 14. Многократные запросы для проверки распределения
-# Выполнить 10 раз
-GET {{nginx_url}}/api/health
-
-### ============================================
-### Скрипт для тестирования в терминале
-### ============================================
-
-# Запустите в терминале для проверки распределения:
-# for i in {1..20}; do curl -s http://localhost/api/health | jq .server; done
+# Или скриптом:
+# for i in {1..10}; do curl -s http://localhost/ | jq -r '.server'; done
