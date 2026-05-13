@@ -1,60 +1,14 @@
-### ============================================
-### Тестирование балансировки в Docker
-### ============================================
+### Тест 1: Проверка основного сервера
+GET http://localhost/
 
-@base_url = http://localhost
+### Тест 2: Проверка health check
+GET http://localhost/api/health
 
-### 1. Проверка основного эндпоинта (порт 80)
-# Выполните несколько раз для проверки балансировки
-GET {{base_url}}/
-Accept: application/json
-
-### 2. Health check бэкендов через Nginx
-GET {{base_url}}/api/health
-Accept: application/json
-
-### 3. Список пользователей
-GET {{base_url}}/api/users
-Accept: application/json
-
-### 4. Список товаров
-GET {{base_url}}/api/products
-Accept: application/json
-
-### 5. Информация о сервере
-GET {{base_url}}/api/info
-Accept: application/json
-
-### 6. Нагрузочный тест
-GET {{base_url}}/api/load-test?n=5000000
-Accept: application/json
-
-### 7. Health check Nginx
-GET {{base_url}}/nginx-health
-
-### ============================================
-### Тестирование разных алгоритмов
-### ============================================
-
-### 8. Round Robin (порт 8001)
+### Тест 3: Проверка балансировки (порт 8001)
 GET http://localhost:8001/
-Accept: application/json
 
-### 9. Least Connections (порт 8002)
+### Тест 4: Проверка Least Connections (порт 8002)
 GET http://localhost:8002/
-Accept: application/json
 
-### 10. IP Hash (порт 8003)
-# С одного IP всегда будет попадать на один сервер
+### Тест 5: Проверка IP Hash (порт 8003)
 GET http://localhost:8003/
-Accept: application/json
-
-### ============================================
-### Массовое тестирование (выполните в терминале)
-### ============================================
-
-# Проверка распределения (выполнить несколько раз):
-# curl -s http://localhost/ | jq .server
-
-# Или скриптом:
-# for i in {1..10}; do curl -s http://localhost/ | jq -r '.server'; done
